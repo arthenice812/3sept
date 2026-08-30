@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 сентября</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fbf2e4; --bg2:#f7e4c8;
+    --terracotta:#c96a45; --terracotta-soft:#e3a984;
+    --orange:#e8944e; --orange-deep:#c46f2c;
+    --red:#e2483b; --red-deep:#b23327;
+    --card:#ffffff;
+    --ink:#241f19; --ink-soft:#6f6154;
+    --muted:#9c8b76;
+    --line:#ece0cb;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    display:flex;flex-direction:column;align-items:center;
+    padding:48px 16px 70px;gap:34px;overflow-x:hidden;
+    position:relative;
+  }
+  body::before, body::after{
+    content:"";position:fixed;width:420px;height:420px;border-radius:48% 52% 55% 45%;
+    background:var(--bg2);z-index:-1;opacity:.7;
+  }
+  body::before{top:-180px;left:-160px;}
+  body::after{bottom:-200px;right:-180px;background:var(--terracotta-soft);opacity:.35;}
+
+  .eyebrow{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.28em;text-transform:uppercase;font-size:12px;color:var(--terracotta);text-align:center;margin:0;}
+  .headline{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(26px,5.4vw,40px);
+    letter-spacing:-.01em;text-align:center;line-height:1.08;margin:4px 0 0;color:var(--ink);
+    text-wrap:balance;
+  }
+
+  .layout{display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap;max-width:960px;}
+
+  .counter-panel{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:20px 28px;text-align:center;min-width:180px;
+    box-shadow:0 12px 28px rgba(60,40,20,.08);
+  }
+  .counter-label{display:block;font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:11px;color:var(--terracotta);margin-bottom:8px;line-height:1.4;}
+  .counter-num{font-family:'Unbounded',sans-serif;font-weight:700;font-variant-numeric:tabular-nums;font-size:38px;color:var(--ink);}
+  .counter-num.bump{animation:bump .3s ease;}
+  @keyframes bump{0%{transform:scale(1);}40%{transform:scale(1.15);}100%{transform:scale(1);}}
+  .counter-suffix{display:block;margin-top:6px;font-size:11px;color:var(--muted);}
+
+  .center-col{display:flex;flex-direction:column;align-items:center;gap:20px;}
+  .stage{position:relative;width:220px;height:284px;}
+  .card{
+    position:absolute;inset:0;background:var(--card);color:var(--ink);
+    border-radius:20px;overflow:hidden;
+    box-shadow:0 18px 36px rgba(60,40,20,.14);
+    display:flex;flex-direction:column;align-items:center;
+    transform:rotate(-1deg);transform-origin:50% 4%;
+  }
+  .card::before{
+    content:"";display:block;width:100%;height:64px;background:var(--red);
+    position:relative;flex-shrink:0;
+  }
+  .card::after{
+    content:"";position:absolute;top:24px;left:50%;transform:translateX(-50%);
+    width:78px;height:16px;border-radius:999px;background:var(--red-deep);opacity:.35;
+  }
+  .num{font-family:'Unbounded',sans-serif;font-weight:800;font-size:108px;line-height:1;color:var(--ink);margin:14px 0 0;}
+  .month{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:17px;margin:2px 0 0;color:var(--ink-soft);}
+  .card.shake{animation:shake .45s ease;}
+  @keyframes shake{
+    0%,100%{transform:rotate(-1deg);}
+    25%{transform:rotate(1.8deg);}
+    60%{transform:rotate(-2.2deg);}
+    85%{transform:rotate(.4deg);}
+  }
+  @media (prefers-reduced-motion: reduce){.card.shake{animation:none;}}
+
+  #tap{
+    font-family:'Unbounded',sans-serif;font-weight:600;font-size:16px;letter-spacing:.01em;
+    background:var(--orange);
+    color:#fff;border:none;border-radius:999px;
+    padding:15px 44px;cursor:pointer;
+    box-shadow:0 10px 24px rgba(196,111,44,.35);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  #tap:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(196,111,44,.4);}
+  #tap:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(196,111,44,.35);}
+
+  .fly-layer{position:absolute;left:50%;top:40%;width:0;height:0;pointer-events:none;}
+  .fly{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;
+    font-family:'Inter',sans-serif;font-weight:700;font-size:14px;letter-spacing:.01em;
+    padding:5px 12px;border-radius:8px;opacity:0;box-shadow:0 6px 14px rgba(60,40,20,.16);}
+  .fly-1{background:var(--red);color:#fff;animation:fly1 1.7s ease-out forwards;}
+  .fly-2{background:var(--orange);color:#fff;animation:fly2 1.7s .12s ease-out forwards;}
+  .fly-3{background:var(--card);color:var(--ink);animation:fly3 1.7s .24s ease-out forwards;}
+  @keyframes fly1{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(0deg);}14%{opacity:1;}100%{opacity:0;transform:translate(-170px,-180px) scale(1) rotate(-10deg);}}
+  @keyframes fly2{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(0deg);}14%{opacity:1;}100%{opacity:0;transform:translate(6px,-230px) scale(1) rotate(2deg);}}
+  @keyframes fly3{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(0deg);}14%{opacity:1;}100%{opacity:0;transform:translate(170px,-180px) scale(1) rotate(10deg);}}
+  @media (prefers-reduced-motion: reduce){.fly{animation:none!important;opacity:0!important;}}
+
+  .portrait{position:relative;width:220px;height:284px;border-radius:20px;overflow:hidden;box-shadow:0 18px 36px rgba(60,40,20,.14);background:var(--card);}
+  .portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .6s ease;}
+  .portrait img.sing{opacity:0;}
+  .portrait.active img.mute{opacity:0;}
+  .portrait.active img.sing{opacity:1;}
+
+  .credit{max-width:340px;text-align:center;font-size:13px;color:var(--muted);margin:0;line-height:1.5;}
+
+  .gallery-section{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px;}
+  .gallery-title{font-family:'Unbounded',sans-serif;font-weight:700;font-size:18px;color:var(--ink);text-align:center;margin:0;}
+  #uploadBtn{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+    background:var(--card);border:1.5px dashed var(--terracotta);color:var(--terracotta);
+    border-radius:10px;padding:10px 20px;cursor:pointer;
+  }
+  #uploadStatus{font-size:12px;color:var(--muted);min-height:16px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;width:100%;}
+  .photo-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(60,40,20,.08);}
+  .photo-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+  .photo-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;}
+  .like-btn{background:none;border:1px solid var(--red);color:var(--red);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+  .like-btn.liked{background:var(--red);color:#fff;}
+  .like-btn:disabled{opacity:.6;cursor:default;}
+  .empty-note{font-size:13px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<p class="eyebrow">каждый год, из года в год</p>
+<h1 class="headline">Забыть невозможно</h1>
+
+<div class="layout">
+  <div class="counter-panel">
+    <span class="counter-label">Уже перевернули</span>
+    <div class="counter-num" id="counterNum">0</div>
+    <span class="counter-suffix">раз</span>
+  </div>
+
+  <div class="center-col">
+    <div class="stage">
+      <div class="card" id="card">
+        <p class="num">3</p>
+        <p class="month">сентября</p>
+      </div>
+      <div class="fly-layer" id="flyLayer"></div>
+    </div>
+    <button id="tap">Перевернуть</button>
+  </div>
+
+  <div class="portrait" id="portrait">
+    <img class="mute" src="mascot-mute.jpg" alt="Маскот зажимает рот">
+    <img class="sing" src="mascot-sing.jpg" alt="Маскот поёт">
+  </div>
+</div>
+
+<p class="credit">— М. Шуфутинский. Счётчик и лайки настоящие, общие для всех.</p>
+
+<div class="gallery-section">
+  <p class="gallery-title">Галерея памяти</p>
+  <input type="file" id="fileInput" accept="image/*" hidden>
+  <button id="uploadBtn">+ добавить свою картинку</button>
+  <span id="uploadStatus"></span>
+  <div class="grid" id="grid"></div>
+  <p class="empty-note" id="emptyNote" hidden>Пока пусто — добавь первую картинку.</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, doc, onSnapshot, runTransaction,
+  collection, addDoc, query, orderBy, limit, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAg24DjneGp0PJjCDYp910qbKlcBZcz-i8",
+  authDomain: "sept-78417.firebaseapp.com",
+  projectId: "sept-78417",
+  storageBucket: "sept-78417.firebasestorage.app",
+  messagingSenderId: "713871854335",
+  appId: "1:713871854335:web:abc05864985e529a90daca"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let uid = null;
+
+// ---------- counter ----------
+const counterRef = doc(db, "counters", "perevernuli");
+onSnapshot(counterRef, (snap) => {
+  const n = snap.exists() ? (snap.data().count || 0) : 0;
+  const el = document.getElementById('counterNum');
+  el.textContent = n.toLocaleString('ru-RU');
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+});
+
+async function bumpCounter(){
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(counterRef);
+      const cur = snap.exists() ? (snap.data().count || 0) : 0;
+      tx.set(counterRef, { count: cur + 1 });
+    });
+  } catch (e) { console.error(e); }
+}
+
+// ---------- flip interaction ----------
+const card = document.getElementById('card');
+const portrait = document.getElementById('portrait');
+const flyLayer = document.getElementById('flyLayer');
+let portraitTimer = null;
+
+function flyText(){
+  flyLayer.innerHTML = '';
+  const phrases = [
+    { text: 'Я календарь', cls: 'fly-1' },
+    { text: 'Переверну', cls: 'fly-2' },
+    { text: 'И снова 3 сентября', cls: 'fly-3' }
+  ];
+  phrases.forEach(p => {
+    const span = document.createElement('span');
+    span.className = 'fly ' + p.cls;
+    span.textContent = p.text;
+    flyLayer.appendChild(span);
+  });
+  setTimeout(() => { flyLayer.innerHTML = ''; }, 1900);
+}
+
+function crossfadePortrait(){
+  portrait.classList.add('active');
+  if (portraitTimer) clearTimeout(portraitTimer);
+  portraitTimer = setTimeout(() => { portrait.classList.remove('active'); }, 2600);
+}
+
+function onFlip(){
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  flyText();
+  crossfadePortrait();
+  bumpCounter();
+}
+
+document.getElementById('tap').addEventListener('click', onFlip);
+
+// ---------- auth ----------
+onAuthStateChanged(auth, (user) => {
+  if (user) { uid = user.uid; }
+});
+signInAnonymously(auth).catch((e) => console.error('auth error', e));
+
+// ---------- gallery ----------
+const grid = document.getElementById('grid');
+const emptyNote = document.getElementById('emptyNote');
+const photosQuery = query(collection(db, 'photos'), orderBy('createdAt', 'desc'), limit(60));
+
+onSnapshot(photosQuery, (snap) => {
+  grid.innerHTML = '';
+  if (snap.empty) { emptyNote.hidden = false; return; }
+  emptyNote.hidden = true;
+  snap.forEach((docSnap) => {
+    const data = docSnap.data();
+    const id = docSnap.id;
+    const likedBy = data.likedBy || [];
+    const alreadyLiked = uid && likedBy.indexOf(uid) !== -1;
+
+    const cardEl = document.createElement('div');
+    cardEl.className = 'photo-card';
+
+    const img = document.createElement('img');
+    img.src = data.imageData;
+    img.alt = 'Фото сообщества';
+    cardEl.appendChild(img);
+
+    const foot = document.createElement('div');
+    foot.className = 'photo-foot';
+
+    const btn = document.createElement('button');
+    btn.className = 'like-btn' + (alreadyLiked ? ' liked' : '');
+    btn.textContent = '❤ ' + (data.likes || 0);
+    btn.disabled = !uid || alreadyLiked;
+    btn.addEventListener('click', () => likePhoto(id));
+
+    foot.appendChild(btn);
+    cardEl.appendChild(foot);
+    grid.appendChild(cardEl);
+  });
+});
+
+async function likePhoto(photoId){
+  if (!uid) return;
+  const photoRef = doc(db, 'photos', photoId);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(photoRef);
+      if (!snap.exists()) return;
+      const data = snap.data();
+      const likedBy = data.likedBy || [];
+      if (likedBy.indexOf(uid) !== -1) return;
+      likedBy.push(uid);
+      tx.update(photoRef, { likedBy, likes: (data.likes || 0) + 1 });
+    });
+  } catch (e) { console.error(e); }
+}
+
+// ---------- upload ----------
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const uploadStatus = document.getElementById('uploadStatus');
+
+uploadBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', async () => {
+  const file = fileInput.files[0];
+  fileInput.value = '';
+  if (!file) return;
+  if (!uid) { uploadStatus.textContent = 'Подожди секунду, ещё подключаемся...'; return; }
+  uploadStatus.textContent = 'Готовим картинку...';
+  try {
+    const dataUrl = await resizeImage(file, 480, 0.72);
+    uploadStatus.textContent = 'Загружаем...';
+    await addDoc(collection(db, 'photos'), {
+      imageData: dataUrl,
+      likes: 0,
+      likedBy: [],
+      createdAt: serverTimestamp()
+    });
+    uploadStatus.textContent = 'Готово!';
+    setTimeout(() => { uploadStatus.textContent = ''; }, 2000);
+  } catch (e) {
+    console.error(e);
+    uploadStatus.textContent = 'Не получилось, попробуй другую картинку.';
+  }
+});
+
+function resizeImage(file, maxW, quality){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>
