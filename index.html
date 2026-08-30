@@ -117,6 +117,7 @@
 
   .gallery-section{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px;}
   .gallery-title{font-family:'Unbounded',sans-serif;font-weight:700;font-size:18px;color:var(--ink);text-align:center;margin:0;}
+  .rules{max-width:420px;text-align:center;font-size:13px;color:var(--ink-soft);margin:0;line-height:1.55;}
   #uploadBtn{
     font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
     background:var(--card);border:1.5px dashed var(--terracotta);color:var(--terracotta);
@@ -135,7 +136,7 @@
 </head>
 <body>
 
-<p class="eyebrow">каждый год, из года в год</p>
+<p class="eyebrow">который год подряд</p>
 <h1 class="headline">Забыть невозможно</h1>
 
 <div class="layout">
@@ -162,12 +163,13 @@
   </div>
 </div>
 
-<p class="credit">— М. Шуфутинский. Счётчик и лайки настоящие, общие для всех.</p>
+<p class="credit">— М. Шуфутинский. Счётчик настоящий, общий для всех.</p>
 
 <div class="gallery-section">
-  <p class="gallery-title">Галерея памяти</p>
+  <p class="gallery-title">Конкурс двойников Шуфутинского</p>
+  <p class="rules">Загрузи свою фотографию. За весь конкурс с одного устройства можно поставить только 1 лайк — выбирай внимательно. Побеждает работа с наибольшим числом лайков.</p>
   <input type="file" id="fileInput" accept="image/*" hidden>
-  <button id="uploadBtn">+ добавить свою картинку</button>
+  <button id="uploadBtn">+ отправить работу на конкурс</button>
   <span id="uploadStatus"></span>
   <div class="grid" id="grid"></div>
   <p class="empty-note" id="emptyNote" hidden>Пока пусто — добавь первую картинку.</p>
@@ -176,7 +178,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  getFirestore, doc, onSnapshot, runTransaction,
+  getFirestore, doc, onSnapshot, runTransaction, increment,
   collection, addDoc, query, orderBy, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
@@ -254,7 +256,7 @@ document.getElementById('tap').addEventListener('click', onFlip);
 
 // ---------- auth ----------
 onAuthStateChanged(auth, (user) => {
-  if (user) { uid = user.uid; }
+  if (user) { uid = user.uid; watchMyVote(); renderGrid(); }
 });
 signInAnonymously(auth).catch((e) => console.error('auth error', e));
 
@@ -263,15 +265,24 @@ const grid = document.getElementById('grid');
 const emptyNote = document.getElementById('emptyNote');
 const photosQuery = query(collection(db, 'photos'), orderBy('createdAt', 'desc'), limit(60));
 
+let lastPhotos = null;
+let myVotePhotoId = null;
+
 onSnapshot(photosQuery, (snap) => {
+  lastPhotos = snap;
+  renderGrid();
+});
+
+function renderGrid(){
+  if (!lastPhotos) return;
   grid.innerHTML = '';
-  if (snap.empty) { emptyNote.hidden = false; return; }
+  if (lastPhotos.empty) { emptyNote.hidden = false; return; }
   emptyNote.hidden = true;
-  snap.forEach((docSnap) => {
+  lastPhotos.forEach((docSnap) => {
     const data = docSnap.data();
     const id = docSnap.id;
-    const likedBy = data.likedBy || [];
-    const alreadyLiked = uid && likedBy.indexOf(uid) !== -1;
+    const isMyVote = myVotePhotoId === id;
+    const votedElsewhere = myVotePhotoId !== null && !isMyVote;
 
     const cardEl = document.createElement('div');
     cardEl.className = 'photo-card';
@@ -285,29 +296,36 @@ onSnapshot(photosQuery, (snap) => {
     foot.className = 'photo-foot';
 
     const btn = document.createElement('button');
-    btn.className = 'like-btn' + (alreadyLiked ? ' liked' : '');
+    btn.className = 'like-btn' + (isMyVote ? ' liked' : '');
     btn.textContent = '❤ ' + (data.likes || 0);
-    btn.disabled = !uid || alreadyLiked;
+    btn.disabled = !uid || isMyVote || votedElsewhere;
     btn.addEventListener('click', () => likePhoto(id));
 
     foot.appendChild(btn);
     cardEl.appendChild(foot);
     grid.appendChild(cardEl);
   });
-});
+}
+
+function watchMyVote(){
+  if (!uid) return;
+  const voteRef = doc(db, 'votes', uid);
+  onSnapshot(voteRef, (snap) => {
+    myVotePhotoId = snap.exists() ? snap.data().photoId : null;
+    renderGrid();
+  });
+}
 
 async function likePhoto(photoId){
-  if (!uid) return;
+  if (!uid || myVotePhotoId !== null) return;
+  const voteRef = doc(db, 'votes', uid);
   const photoRef = doc(db, 'photos', photoId);
   try {
     await runTransaction(db, async (tx) => {
-      const snap = await tx.get(photoRef);
-      if (!snap.exists()) return;
-      const data = snap.data();
-      const likedBy = data.likedBy || [];
-      if (likedBy.indexOf(uid) !== -1) return;
-      likedBy.push(uid);
-      tx.update(photoRef, { likedBy, likes: (data.likes || 0) + 1 });
+      const voteSnap = await tx.get(voteRef);
+      if (voteSnap.exists()) return;
+      tx.set(voteRef, { photoId, at: serverTimestamp() });
+      tx.update(photoRef, { likes: increment(1) });
     });
   } catch (e) { console.error(e); }
 }
