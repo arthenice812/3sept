@@ -47,7 +47,7 @@
 
   .counter-panel{
     background:var(--card);border:1px solid var(--line);
-    border-radius:18px;padding:20px 28px;text-align:center;min-width:180px;
+    border-radius:18px;padding:18px 24px;text-align:center;width:min(180px,60vw);
     box-shadow:0 12px 28px rgba(60,40,20,.08);
   }
   .counter-label{display:block;font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:11px;color:var(--terracotta);margin-bottom:8px;line-height:1.4;}
@@ -57,7 +57,7 @@
   .counter-suffix{display:block;margin-top:6px;font-size:11px;color:var(--muted);}
 
   .center-col{display:flex;flex-direction:column;align-items:center;gap:20px;}
-  .stage{position:relative;width:220px;height:284px;}
+  .stage{position:relative;width:min(220px,72vw);aspect-ratio:220/284;}
   .card{
     position:absolute;inset:0;background:var(--card);color:var(--ink);
     border-radius:20px;overflow:hidden;
@@ -73,8 +73,8 @@
     content:"";position:absolute;top:24px;left:50%;transform:translateX(-50%);
     width:78px;height:16px;border-radius:999px;background:var(--red-deep);opacity:.35;
   }
-  .num{font-family:'Unbounded',sans-serif;font-weight:800;font-size:108px;line-height:1;color:var(--ink);margin:14px 0 0;}
-  .month{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:17px;margin:2px 0 0;color:var(--ink-soft);}
+  .num{font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(56px,20vw,108px);line-height:1;color:var(--ink);margin:14px 0 0;}
+  .month{font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:clamp(13px,3.6vw,17px);margin:2px 0 0;color:var(--ink-soft);}
   .card.shake{animation:shake .45s ease;}
   @keyframes shake{
     0%,100%{transform:rotate(-1deg);}
@@ -95,19 +95,21 @@
   #tap:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(196,111,44,.4);}
   #tap:active{transform:translateY(1px);box-shadow:0 6px 16px rgba(196,111,44,.35);}
 
-  .fly-layer{position:absolute;left:50%;top:40%;width:0;height:0;pointer-events:none;}
+  .fly-layer{position:absolute;left:50%;top:40%;width:0;height:0;pointer-events:none;z-index:5;}
   .fly{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;
-    font-family:'Inter',sans-serif;font-weight:700;font-size:14px;letter-spacing:.01em;
-    padding:5px 12px;border-radius:8px;opacity:0;box-shadow:0 6px 14px rgba(60,40,20,.16);}
-  .fly-1{background:var(--red);color:#fff;animation:fly1 1.7s ease-out forwards;}
-  .fly-2{background:var(--orange);color:#fff;animation:fly2 1.7s .12s ease-out forwards;}
-  .fly-3{background:var(--card);color:var(--ink);animation:fly3 1.7s .24s ease-out forwards;}
-  @keyframes fly1{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(0deg);}14%{opacity:1;}100%{opacity:0;transform:translate(-170px,-180px) scale(1) rotate(-10deg);}}
-  @keyframes fly2{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(0deg);}14%{opacity:1;}100%{opacity:0;transform:translate(6px,-230px) scale(1) rotate(2deg);}}
-  @keyframes fly3{0%{opacity:0;transform:translate(-50%,-50%) scale(.6) rotate(0deg);}14%{opacity:1;}100%{opacity:0;transform:translate(170px,-180px) scale(1) rotate(10deg);}}
+    font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(13px,4vw,18px);letter-spacing:.01em;
+    padding:6px 14px;border-radius:9px;opacity:0;box-shadow:0 8px 18px rgba(60,40,20,.2);}
+  .fly-1{background:var(--red);color:#fff;animation:fly1 2s ease-out forwards;}
+  .fly-2{background:var(--orange);color:#fff;animation:fly2 2s .12s ease-out forwards;}
+  .fly-3{background:var(--card);color:var(--ink);animation:fly3 2s .24s ease-out forwards;}
+  .fly-4{background:var(--terracotta);color:#fff;animation:fly4 2s .36s ease-out forwards;}
+  @keyframes fly1{0%{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(0deg);}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(0deg);}100%{opacity:0;transform:translate(-230px,-210px) scale(1) rotate(-16deg);}}
+  @keyframes fly2{0%{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(0deg);}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(0deg);}100%{opacity:0;transform:translate(0px,-280px) scale(1) rotate(3deg);}}
+  @keyframes fly3{0%{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(0deg);}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(0deg);}100%{opacity:0;transform:translate(230px,-210px) scale(1) rotate(16deg);}}
+  @keyframes fly4{0%{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(0deg);}12%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(0deg);}100%{opacity:0;transform:translate(-40px,220px) scale(1) rotate(-8deg);}}
   @media (prefers-reduced-motion: reduce){.fly{animation:none!important;opacity:0!important;}}
 
-  .portrait{position:relative;width:220px;height:284px;border-radius:20px;overflow:hidden;box-shadow:0 18px 36px rgba(60,40,20,.14);background:var(--card);}
+  .portrait{position:relative;width:min(220px,72vw);aspect-ratio:220/284;border-radius:20px;overflow:hidden;box-shadow:0 18px 36px rgba(60,40,20,.14);background:var(--card);}
   .portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .6s ease;}
   .portrait img.sing{opacity:0;}
   .portrait.active img.mute{opacity:0;}
@@ -249,7 +251,8 @@ function flyText(){
   const phrases = [
     { text: 'Я календарь', cls: 'fly-1' },
     { text: 'Переверну', cls: 'fly-2' },
-    { text: 'И снова 3 сентября', cls: 'fly-3' }
+    { text: 'И снова 3 сентября', cls: 'fly-3' },
+    { text: 'Снова!', cls: 'fly-4' }
   ];
   phrases.forEach(p => {
     const span = document.createElement('span');
@@ -257,7 +260,7 @@ function flyText(){
     span.textContent = p.text;
     flyLayer.appendChild(span);
   });
-  setTimeout(() => { flyLayer.innerHTML = ''; }, 1900);
+  setTimeout(() => { flyLayer.innerHTML = ''; }, 2300);
 }
 
 function crossfadePortrait(){
@@ -302,7 +305,6 @@ function renderGrid(){
   photosArr.forEach((item, index) => {
     const { id, data } = item;
     const isMyVote = myVotePhotoId === id;
-    const votedElsewhere = myVotePhotoId !== null && !isMyVote;
 
     const cardEl = document.createElement('div');
     cardEl.className = 'photo-card';
@@ -319,7 +321,7 @@ function renderGrid(){
     const btn = document.createElement('button');
     btn.className = 'like-btn' + (isMyVote ? ' liked' : '');
     btn.textContent = '❤ ' + (data.likes || 0);
-    btn.disabled = !uid || isMyVote || votedElsewhere;
+    btn.disabled = !uid;
     btn.addEventListener('click', () => likePhoto(id));
 
     foot.appendChild(btn);
@@ -357,10 +359,9 @@ function renderLightbox(){
   const { id, data } = item;
   lightboxImg.src = data.imageData;
   const isMyVote = myVotePhotoId === id;
-  const votedElsewhere = myVotePhotoId !== null && !isMyVote;
   lightboxLike.textContent = '❤ ' + (data.likes || 0);
   lightboxLike.className = 'lightbox-like' + (isMyVote ? ' liked' : '');
-  lightboxLike.disabled = !uid || isMyVote || votedElsewhere;
+  lightboxLike.disabled = !uid;
   lightboxLike.onclick = () => likePhoto(id);
   lightboxPrev.disabled = photosArr.length < 2;
   lightboxNext.disabled = photosArr.length < 2;
@@ -392,13 +393,24 @@ function watchMyVote(){
 }
 
 async function likePhoto(photoId){
-  if (!uid || myVotePhotoId !== null) return;
+  if (!uid) return;
   const voteRef = doc(db, 'votes', uid);
   const photoRef = doc(db, 'photos', photoId);
   try {
     await runTransaction(db, async (tx) => {
       const voteSnap = await tx.get(voteRef);
-      if (voteSnap.exists()) return;
+      const prevId = voteSnap.exists() ? voteSnap.data().photoId : null;
+
+      if (prevId === photoId) {
+        // повторный клик по своему голосу — снять лайк
+        tx.delete(voteRef);
+        tx.update(photoRef, { likes: increment(-1) });
+        return;
+      }
+      if (prevId) {
+        const prevRef = doc(db, 'photos', prevId);
+        tx.update(prevRef, { likes: increment(-1) });
+      }
       tx.set(voteRef, { photoId, at: serverTimestamp() });
       tx.update(photoRef, { likes: increment(1) });
     });
