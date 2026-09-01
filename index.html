@@ -155,6 +155,7 @@
 
 <p class="eyebrow">который год подряд</p>
 <h1 class="headline">Забыть невозможно</h1>
+<p class="rules">Приём работ и тычков — до 23:59 3 сентября (чт). Голосование — до 15:00 4 сентября (пт).</p>
 
 <div class="layout">
   <div class="counter-panel">
@@ -234,6 +235,7 @@ onSnapshot(counterRef, (snap) => {
 });
 
 async function bumpCounter(){
+  if (uploadClosed()) return;
   try {
     await runTransaction(db, async (tx) => {
       const snap = await tx.get(counterRef);
@@ -273,42 +275,21 @@ function crossfadePortrait(){
 }
 
 function onFlip(){
+  if (uploadClosed()) return;
   card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
   flyText();
   crossfadePortrait();
   bumpCounter();
 }
 
-document.getElementById('tap').addEventListener('click', onFlip);
+const tapBtn = document.getElementById('tap');
+tapBtn.addEventListener('click', onFlip);
 
 // ---------- auth ----------
 onAuthStateChanged(auth, (user) => {
   if (user) { uid = user.uid; watchMyVote(); renderGrid(); }
 });
 signInAnonymously(auth).catch((e) => console.error('auth error', e));
-
-// ---------- voting deadline: 3 сентября, 23:59:59 GMT+3 ----------
-const VOTING_DEADLINE = new Date('2026-09-03T23:59:59+03:00');
-function votingClosed(){ return Date.now() > VOTING_DEADLINE.getTime(); }
-
-function updateVotingStatus(){
-  const el = document.getElementById('votingStatus');
-  if (!el) return;
-  if (votingClosed()) {
-    el.textContent = 'Голосование завершено — приём лайков закрыт.';
-    el.classList.add('closed');
-  } else {
-    el.textContent = '';
-    el.classList.remove('closed');
-  }
-}
-updateVotingStatus();
-{
-  const msUntilClose = VOTING_DEADLINE.getTime() - Date.now();
-  if (msUntilClose > 0 && msUntilClose < 2147000000) {
-    setTimeout(() => { updateVotingStatus(); renderGrid(); refreshLightbox(); }, msUntilClose + 500);
-  }
-}
 
 // ---------- gallery ----------
 const grid = document.getElementById('grid');
@@ -347,7 +328,7 @@ function renderGrid(){
     const btn = document.createElement('button');
     btn.className = 'like-btn' + (isMyVote ? ' liked' : '');
     btn.textContent = '❤ ' + (data.likes || 0);
-    btn.disabled = !uid || votingClosed();
+    btn.disabled = !uid || voteClosed();
     btn.addEventListener('click', () => likePhoto(id));
 
     foot.appendChild(btn);
@@ -387,7 +368,7 @@ function renderLightbox(){
   const isMyVote = myVotePhotoId === id;
   lightboxLike.textContent = '❤ ' + (data.likes || 0);
   lightboxLike.className = 'lightbox-like' + (isMyVote ? ' liked' : '');
-  lightboxLike.disabled = !uid || votingClosed();
+  lightboxLike.disabled = !uid || voteClosed();
   lightboxLike.onclick = () => likePhoto(id);
   lightboxPrev.disabled = photosArr.length < 2;
   lightboxNext.disabled = photosArr.length < 2;
@@ -419,7 +400,7 @@ function watchMyVote(){
 }
 
 async function likePhoto(photoId){
-  if (!uid || votingClosed()) return;
+  if (!uid || voteClosed()) return;
   const voteRef = doc(db, 'votes', uid);
   const photoRef = doc(db, 'photos', photoId);
   try {
@@ -472,6 +453,47 @@ fileInput.addEventListener('change', async () => {
     uploadStatus.textContent = 'Не получилось, попробуй другую картинку.';
   }
 });
+
+// ---------- deadlines ----------
+// приём работ и тычков — до 23:59:59 3 сентября (чт), GMT+3
+const UPLOAD_DEADLINE = new Date('2026-09-03T23:59:59+03:00');
+// голосование (лайки) — до 15:00:00 4 сентября (пт), GMT+3
+const VOTE_DEADLINE = new Date('2026-09-04T15:00:00+03:00');
+
+function uploadClosed(){ return Date.now() > UPLOAD_DEADLINE.getTime(); }
+function voteClosed(){ return Date.now() > VOTE_DEADLINE.getTime(); }
+
+function updateDeadlineUI(){
+  const upClosed = uploadClosed();
+  const voClosed = voteClosed();
+
+  tapBtn.disabled = upClosed;
+  uploadBtn.disabled = upClosed;
+
+  const el = document.getElementById('votingStatus');
+  if (el) {
+    if (upClosed && voClosed) {
+      el.textContent = 'Конкурс полностью завершён.';
+      el.classList.add('closed');
+    } else if (upClosed) {
+      el.textContent = 'Приём новых работ и тычков закрыт. Голосование ещё идёт — до 15:00 4 сентября.';
+      el.classList.add('closed');
+    } else {
+      el.textContent = '';
+      el.classList.remove('closed');
+    }
+  }
+  renderGrid();
+  refreshLightbox();
+}
+updateDeadlineUI();
+
+function scheduleAt(date, fn){
+  const ms = date.getTime() - Date.now();
+  if (ms > 0 && ms < 2147000000) setTimeout(fn, ms + 500);
+}
+scheduleAt(UPLOAD_DEADLINE, updateDeadlineUI);
+scheduleAt(VOTE_DEADLINE, updateDeadlineUI);
 
 function resizeImage(file, maxW, quality){
   return new Promise((resolve, reject) => {
