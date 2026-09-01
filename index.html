@@ -120,6 +120,8 @@
   .gallery-section{width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px;}
   .gallery-title{font-family:'Unbounded',sans-serif;font-weight:700;font-size:18px;color:var(--ink);text-align:center;margin:0;}
   .rules{max-width:420px;text-align:center;font-size:13px;color:var(--ink-soft);margin:0;line-height:1.55;}
+  #votingStatus{color:var(--terracotta);font-weight:600;}
+  #votingStatus.closed{color:var(--red);}
   #uploadBtn{
     font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
     background:var(--card);border:1.5px dashed var(--terracotta);color:var(--terracotta);
@@ -181,6 +183,7 @@
 <div class="gallery-section">
   <p class="gallery-title">Конкурс двойников Шуфутинского</p>
   <p class="rules">Загрузи свою фотографию. За весь конкурс с одного устройства можно поставить только 1 лайк — выбирай внимательно. Побеждает работа с наибольшим числом лайков.</p>
+  <p class="rules" id="votingStatus"></p>
   <input type="file" id="fileInput" accept="image/*" hidden>
   <button id="uploadBtn">+ отправить работу на конкурс</button>
   <span id="uploadStatus"></span>
@@ -284,6 +287,29 @@ onAuthStateChanged(auth, (user) => {
 });
 signInAnonymously(auth).catch((e) => console.error('auth error', e));
 
+// ---------- voting deadline: 3 сентября, 23:59:59 GMT+3 ----------
+const VOTING_DEADLINE = new Date('2026-09-03T23:59:59+03:00');
+function votingClosed(){ return Date.now() > VOTING_DEADLINE.getTime(); }
+
+function updateVotingStatus(){
+  const el = document.getElementById('votingStatus');
+  if (!el) return;
+  if (votingClosed()) {
+    el.textContent = 'Голосование завершено — приём лайков закрыт.';
+    el.classList.add('closed');
+  } else {
+    el.textContent = '';
+    el.classList.remove('closed');
+  }
+}
+updateVotingStatus();
+{
+  const msUntilClose = VOTING_DEADLINE.getTime() - Date.now();
+  if (msUntilClose > 0 && msUntilClose < 2147000000) {
+    setTimeout(() => { updateVotingStatus(); renderGrid(); refreshLightbox(); }, msUntilClose + 500);
+  }
+}
+
 // ---------- gallery ----------
 const grid = document.getElementById('grid');
 const emptyNote = document.getElementById('emptyNote');
@@ -321,7 +347,7 @@ function renderGrid(){
     const btn = document.createElement('button');
     btn.className = 'like-btn' + (isMyVote ? ' liked' : '');
     btn.textContent = '❤ ' + (data.likes || 0);
-    btn.disabled = !uid;
+    btn.disabled = !uid || votingClosed();
     btn.addEventListener('click', () => likePhoto(id));
 
     foot.appendChild(btn);
@@ -361,7 +387,7 @@ function renderLightbox(){
   const isMyVote = myVotePhotoId === id;
   lightboxLike.textContent = '❤ ' + (data.likes || 0);
   lightboxLike.className = 'lightbox-like' + (isMyVote ? ' liked' : '');
-  lightboxLike.disabled = !uid;
+  lightboxLike.disabled = !uid || votingClosed();
   lightboxLike.onclick = () => likePhoto(id);
   lightboxPrev.disabled = photosArr.length < 2;
   lightboxNext.disabled = photosArr.length < 2;
@@ -393,7 +419,7 @@ function watchMyVote(){
 }
 
 async function likePhoto(photoId){
-  if (!uid) return;
+  if (!uid || votingClosed()) return;
   const voteRef = doc(db, 'votes', uid);
   const photoRef = doc(db, 'photos', photoId);
   try {
